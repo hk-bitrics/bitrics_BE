@@ -8,37 +8,40 @@ class User extends Sequelize.Model {
           type: Sequelize.INTEGER,
           autoIncrement: true,
           primaryKey: true,
-          allowNull: false,
         },
         nickname: {
           type: Sequelize.STRING(15),
-          allowNull: false,
-          unique: false,
         },
         email: {
           type: Sequelize.STRING(255),
-          allowNull: false,
           unique: true,
         },
         kakao_id: {
           type: Sequelize.STRING(30),
-          allowNull: false,
           unique: true,
         },
       },
       {
         sequelize,
-        timestamps: true,
-        underscored: false,
         modelName: "User",
-        tableName: "user",
+        tableName: "users",
+        timestamps: true,
         charset: "utf8",
         collate: "utf8_general_ci",
       }
     );
   }
 
-  static associate(db) {}
+  static associate(db) {
+    User.hasMany(db.UpbitAccounts, {
+      foreignKey: "user_id",
+      as: "upbitAccounts",
+    });
+    User.hasMany(db.BithumAccounts, {
+      foreignKey: "user_id",
+      as: "bithumAccounts",
+    });
+  }
 }
 
 module.exports = User;

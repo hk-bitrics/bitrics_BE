@@ -13,28 +13,23 @@ class VcAtmLoc extends Sequelize.Model {
         city: {
           type: Sequelize.STRING(20),
           allowNull: true,
-          unique: false,
         },
         lat: {
           type: Sequelize.FLOAT,
           allowNull: true,
-          unique: false,
         },
         lon: {
           type: Sequelize.FLOAT,
           allowNull: true,
-          unique: false,
         },
         buy_sell: {
           type: Sequelize.BOOLEAN,
           allowNull: true,
-          unique: false,
         },
       },
       {
         sequelize,
         timestamps: true,
-        underscored: false,
         modelName: "VcAtmLoc",
         tableName: "vcAtmLoc",
         charset: "utf8",
