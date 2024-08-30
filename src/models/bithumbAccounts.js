@@ -1,8 +1,8 @@
 const Sequelize = require("sequelize");
 
-class BithumAccounts extends Sequelize.Model {
+class BithumbAccounts extends Sequelize.Model {
   static initiate(sequelize) {
-    BithumAccounts.init(
+    BithumbAccounts.init(
       {
         bithum_id: {
           type: Sequelize.INTEGER,
@@ -44,8 +44,8 @@ class BithumAccounts extends Sequelize.Model {
       },
       {
         sequelize,
-        modelName: "BithumAccounts",
-        tableName: "bithumAccounts",
+        modelName: "BithumbAccounts",
+        tableName: "bithumbAccounts",
         timestamps: true,
         charset: "utf8",
         collate: "utf8_general_ci",
@@ -54,11 +54,11 @@ class BithumAccounts extends Sequelize.Model {
   }
 
   static associate(db) {
-    BithumAccounts.belongsTo(db.User, {
+    BithumbAccounts.belongsTo(db.User, {
       foreignKey: "user_id",
       as: "user",
     });
   }
 }
 
-module.exports = BithumAccounts;
+module.exports = BithumbAccounts;

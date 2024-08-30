@@ -37,9 +37,9 @@ class User extends Sequelize.Model {
       foreignKey: "user_id",
       as: "upbitAccounts",
     });
-    User.hasMany(db.BithumAccounts, {
+    User.hasMany(db.BithumbAccounts, {
       foreignKey: "user_id",
-      as: "bithumAccounts",
+      as: "bithumbAccounts",
     });
   }
 }
