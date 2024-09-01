@@ -1,0 +1,54 @@
+name: deploy
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    strategy:
+      matrix:
+        node-version: [20.17.0]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+      - name: Checkout source code.
+        uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Check npm versionu
+        run: npm -v
+
+      - name: create env file
+        working-directory: ./
+        run: |
+          pwd
+          touch .env
+          echo COOKIE_SECRET=${{ secrets.COOKIE_SECRET }} >> .env
+          echo NODE_ENV=${{ secrets.NODE_ENV }} >> .env
+          echo CLIENT_ID=${{ secrets.CLIENT_ID }} >> .env
+          echo CLIENT_SECRET=${{ secrets.CLIENT_SECRET }} >> .env
+          echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+          echo DB_USER=${{ secrets.DB_USER }} >> .env
+          echo DB_PASS=${{ secrets.DB_PASS }} >> .env
+          echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+          echo PORT=${{ secrets.PORT }} >> .env
+          echo UPBIT_OPEN_API_ACCESS_KEY=${{ secrets.UPBIT_OPEN_API_ACCESS_KEY }} >> .env
+          echo UPBIT_OPEN_API_SECRET_KEY=${{ secrets.UPBIT_OPEN_API_SECRET_KEY }} >> .env
+          cat .env
+
+      - name: Install dependencies
+        working-directory: ./
+        run: npm install
+
+      - name: Build project
+        working-directory: ./
+        run: npm run build
