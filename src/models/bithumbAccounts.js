@@ -25,10 +25,6 @@ class BithumbAccounts extends Sequelize.Model {
           type: Sequelize.DECIMAL(20, 8),
           allowNull: true,
         },
-        avg_buy_price_modified: {
-          type: Sequelize.BOOLEAN,
-          allowNull: true,
-        },
         unit_currency: {
           type: Sequelize.STRING(15),
           allowNull: true,

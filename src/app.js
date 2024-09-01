@@ -6,9 +6,12 @@ const session = require("express-session");
 const dotenv = require("dotenv");
 const passport = require("passport");
 const cors = require("cors");
+const swaggerSetup = require("./swagger");
 
 dotenv.config();
 const authRouter = require("../src/routes/auth");
+const marketRouter = require("../src/routes/market");
+const accountRouter = require("../src/routes/account");
 
 const { sequelize } = require("./models");
 const passportConfig = require("./passport");
@@ -16,6 +19,7 @@ const passportConfig = require("./passport");
 const app = express();
 passportConfig();
 app.set("port", process.env.PORT || 3000);
+swaggerSetup(app);
 
 sequelize
   .sync({ force: false })
@@ -49,6 +53,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/auth", authRouter);
+app.use("/", marketRouter);
+app.use("/account", accountRouter);
 
 app.use((req, res, next) => {
   res.status(404).json({
