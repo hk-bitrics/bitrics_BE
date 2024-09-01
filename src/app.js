@@ -11,7 +11,6 @@ const swaggerSetup = require("./swagger");
 dotenv.config();
 const authRouter = require("../src/routes/auth");
 const marketRouter = require("../src/routes/market");
-const accountRouter = require("../src/routes/account");
 
 const { sequelize } = require("./models");
 const passportConfig = require("./passport");
