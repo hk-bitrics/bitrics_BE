@@ -67,9 +67,8 @@ jobs:
         run: aws s3 cp ./$GITHUB_SHA.zip s3://${{ secrets.S3_BUCKET_NAME }}/${GITHUB_SHA}.zip
 
       - name: Deploy to EC2 with CodeDeploy
-        run: |
-          aws deploy create-deployment \
-            --application-name birics-codedeploy \
-            --deployment-config-name CodeDeployDefault.AllAtOnce \
-            --deployment-group-name ${{ secrets.DEPLOYMENT_GROUP_NAME }} \
-            --s3-location bucket=${{ secrets.S3_BUCKET_NAME }},bundleType=zip,key=${GITHUB_SHA}.zip
+        run: aws deploy create-deployment
+          --application-name birics-codedeploy
+          --deployment-config-name CodeDeployDefault.AllAtOnce
+          --deployment-group-name ${{ secrets.DEPLOYMENT_GROUP_NAME }}
+          --s3-location bucket=${{ secrets.S3_BUCKET_NAME }},bundleType=zip,key=${GITHUB_SHA}.zip
