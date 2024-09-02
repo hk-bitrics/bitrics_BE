@@ -4,13 +4,11 @@ class VcAtmLoc extends Sequelize.Model {
   static initiate(sequelize) {
     VcAtmLoc.init(
       {
-        atm_id: {
-          type: Sequelize.INTEGER,
-          autoIncrement: true,
-          primaryKey: true,
-          allowNull: false,
-        },
         city: {
+          type: Sequelize.STRING(20),
+          allowNull: true,
+        },
+        name: {
           type: Sequelize.STRING(20),
           allowNull: true,
         },
@@ -29,7 +27,7 @@ class VcAtmLoc extends Sequelize.Model {
       },
       {
         sequelize,
-        timestamps: true,
+        timestamps: false,
         modelName: "VcAtmLoc",
         tableName: "vcAtmLoc",
         charset: "utf8",
