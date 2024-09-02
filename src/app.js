@@ -11,7 +11,6 @@ const swaggerSetup = require("./swagger");
 dotenv.config();
 const authRouter = require("../src/routes/auth");
 const marketRouter = require("../src/routes/market");
-// const accountRouter = require("../src/routes/account");
 const mapRouter = require("../src/routes/map");
 
 const { sequelize } = require("./models");
@@ -55,7 +54,6 @@ app.use(passport.session());
 
 app.use("/auth", authRouter);
 app.use("/", marketRouter);
-// app.use("/", accountRouter);
 app.use("/", mapRouter);
 
 app.use((req, res, next) => {
