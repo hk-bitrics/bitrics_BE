@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
@@ -52,3 +52,23 @@ jobs:
       - name: Build project
         working-directory: ./
         run: npm run build
+
+      - name: Zip project files
+        run: zip -r ./$GITHUB_SHA.zip .
+
+      - name: Access to AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Upload to S3
+        run: aws s3 cp ./$GITHUB_SHA.zip s3://${{ secrets.S3_BUCKET_NAME }}/${GITHUB_SHA}.zip
+
+      - name: Deploy to EC2 with CodeDeploy
+        run: aws deploy create-deployment
+          --application-name codedeploy-app
+          --deployment-config-name CodeDeployDefault.AllAtOnce
+          --deployment-group-name ${{ env.DEPLOYMENT_GROUP_NAME }}
+          --s3-location bucket=${{ secrets.S3_BUCKET_NAME }},bundleType=zip,key=${GITHUB_SHA}.zip
