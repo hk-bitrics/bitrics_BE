@@ -12,6 +12,7 @@ dotenv.config();
 const authRouter = require("../src/routes/auth");
 const marketRouter = require("../src/routes/market");
 const mapRouter = require("../src/routes/map");
+const assetRouter = require("../src/routes/asset");
 
 const { sequelize } = require("./models");
 const passportConfig = require("./passport");
@@ -55,6 +56,7 @@ app.use(passport.session());
 app.use("/auth", authRouter);
 app.use("/", marketRouter);
 app.use("/", mapRouter);
+app.use("/", assetRouter);
 
 app.use((req, res, next) => {
   res.status(404).json({

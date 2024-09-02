@@ -1,4 +1,4 @@
-const VcAtmLoc = require("../../models/vcAtmLoc");
+const { VcAtmLoc } = require("../../models");
 
 const getAllAtmLocations = async () => {
   try {
