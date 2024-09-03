@@ -109,6 +109,8 @@ const getAdditionalData = async () => {
 
     return {
       usdToKrw: exchangeRateResponse.data.rates.KRW,
+      marketCapUsd: btcDominanceResponse.data.market_cap_usd,
+      volume24hUsd: btcDominanceResponse.data.volume_24h_usd,
       btcDominance: btcDominanceResponse.data.bitcoin_dominance_percentage,
       btcUsd: btcResponse.data.quotes.USD.price,
       btcKrw: btcResponse.data.quotes.KRW.price,
@@ -149,6 +151,8 @@ const getIntegratedData = async () => {
     return {
       exchangeRate: {
         usdToKrw: additionalData.usdToKrw,
+        marketCapUsd: additionalData.marketCapUsd,
+        volume24hUsd: additionalData.volume24hUsd,
         btcDominance: additionalData.btcDominance,
         btcUsd: additionalData.btcUsd,
         btcKrwKimchiPremium: btcKrwKimchiPremium,
@@ -170,6 +174,7 @@ const getIntegratedData = async () => {
           accTradePrice24h: item.accTradePrice24h,
         })),
         BTC: categorizedData.BTC.map((item) => ({
+          market: item.market,
           koreanName: item.koreanName,
           englishName: item.englishName,
           tradePrice: item.tradePrice,
@@ -179,6 +184,7 @@ const getIntegratedData = async () => {
           accTradePrice24h: item.accTradePrice24h,
         })),
         USDT: categorizedData.USDT.map((item) => ({
+          market: item.market,
           koreanName: item.koreanName,
           englishName: item.englishName,
           tradePrice: item.tradePrice,
