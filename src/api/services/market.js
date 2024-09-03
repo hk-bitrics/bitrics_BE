@@ -1,11 +1,13 @@
 const axios = require("axios");
 
+// 모든 시장 데이터
 const getAllMarkets = async () => {
   try {
     const response = await axios.get(
       "https://api.upbit.com/v1/market/all?isDetails=false"
     );
 
+    // 시장(ex. KRW-BTC), 한국어 이름(ex. 비트코인), 영어 이름(Bitcoin)
     return response.data.map((item) => ({
       market: item.market,
       koreanName: item.korean_name,
@@ -16,7 +18,9 @@ const getAllMarkets = async () => {
   }
 };
 
+// 특정 시장 데이터
 const getMarketData = async (markets) => {
+  // 모든 시장 데이터에서 시장
   const marketCodes = markets.map((item) => item.market);
   const url = `https://api.upbit.com/v1/ticker?markets=${marketCodes.join(
     ","
@@ -48,6 +52,7 @@ const getMarketData = async (markets) => {
   }
 };
 
+// 시장 데이터 카테고리별(KRW, BTC, USDT) 분류
 const categorizeMarketData = (data) => {
   const categorizedData = {
     KRW: [],
@@ -66,28 +71,31 @@ const categorizeMarketData = (data) => {
 };
 
 const getUpbitMarketData = async () => {
+  // 모든 시장 데이터
   const markets = await getAllMarkets();
+  // 특정 시장 데이터
   const data = await getMarketData(markets);
 
-  const btcUsdtMarket = data.find((item) => item.market === "USDT-BTC");
+  // 특정 시장 -> 카테고리별 분류
   return {
     categorizedData: categorizeMarketData(data),
-    btcUsdtPrice: btcUsdtMarket ? btcUsdtMarket.tradePrice : null,
   };
 };
 
 const getCoinpaprikaData = async () => {
   try {
     const response = await axios.get(
-      "https://api.coinpaprika.com/v1/tickers?quotes=KRW"
+      "https://api.coinpaprika.com/v1/tickers?quotes=USD,KRW"
     );
 
+    // 순위, 이름(ex. Bitcoin), 심볼(ex. BTC), 시가 총액(KRW), 24시간 거래량(KRW), 가격(USD)
     const coinData = response.data.map((coin) => ({
       rank: coin.rank,
       name: coin.name,
       symbol: coin.symbol,
       marketCap: coin.quotes.KRW.market_cap,
       volume24h: coin.quotes.KRW.volume_24h,
+      usdPrice: coin.quotes.USD.price,
     }));
 
     return coinData;
@@ -104,45 +112,72 @@ const getAdditionalData = async () => {
     const btcDominanceResponse = await axios.get(
       "https://api.coinpaprika.com/v1/global"
     );
-    const fearGreedIndexResponse = await axios.get(
-      "https://api.alternative.me/fng/"
+    const btcResponse = await axios.get(
+      "https://api.coinpaprika.com/v1/tickers/btc-bitcoin?quotes=USD,KRW"
     );
 
+    // 환율(USD/KRW), 시가 총액(USD), 거래량(USD), BTC 점유율, BTC 가격(USD), BTC 가격(KRW)
     return {
       usdToKrw: exchangeRateResponse.data.rates.KRW,
+      marketCapUsd: btcDominanceResponse.data.market_cap_usd,
+      volume24hUsd: btcDominanceResponse.data.volume_24h_usd,
       btcDominance: btcDominanceResponse.data.bitcoin_dominance_percentage,
-      fearGreedIndex: fearGreedIndexResponse.data.value,
+      btcUsd: btcResponse.data.quotes.USD.price,
+      btcKrw: btcResponse.data.quotes.KRW.price,
     };
   } catch (error) {
     throw new Error(`Error fetching additional data: ${error.message}`);
   }
 };
 
-const calculateKimchiPremium = (btcKrw, btcUsdt, usdToKrw) => {
-  const btcUsdConverted = btcUsdt * usdToKrw;
-  return ((btcKrw - btcUsdConverted) / btcUsdConverted) * 100;
+// 김프(김치프리미엄)
+const calculateKimchiPremium = (marketPriceKrw, marketPriceUsd, usdToKrw) => {
+  const usdConvertedToKrw = marketPriceUsd * usdToKrw;
+  return ((marketPriceKrw - usdConvertedToKrw) / usdConvertedToKrw) * 100;
 };
 
+// 반환
 const getIntegratedData = async () => {
   try {
-    const { categorizedData, btcUsdtPrice } = await getUpbitMarketData();
+    const { categorizedData } = await getUpbitMarketData();
     const coinpaprikaData = await getCoinpaprikaData();
     const additionalData = await getAdditionalData();
+
+    const coinSymbolMap = coinpaprikaData.reduce((acc, coin) => {
+      acc[coin.name] = coin.symbol;
+      return acc;
+    }, {});
+
+    const coinUsdPrices = coinpaprikaData.reduce((acc, coin) => {
+      acc[coin.symbol] = coin.usdPrice;
+      return acc;
+    }, {});
+
+    const btcKrwKimchiPremium = calculateKimchiPremium(
+      categorizedData.KRW.find((item) => item.englishName === "Bitcoin")
+        .tradePrice,
+      coinUsdPrices["BTC"],
+      additionalData.usdToKrw
+    );
 
     return {
       exchangeRate: {
         usdToKrw: additionalData.usdToKrw,
+        marketCapUsd: additionalData.marketCapUsd,
+        volume24hUsd: additionalData.volume24hUsd,
         btcDominance: additionalData.btcDominance,
-        fearGreedIndex: additionalData.fearGreedIndex,
+        btcUsd: additionalData.btcUsd,
+        btcKrwKimchiPremium: btcKrwKimchiPremium,
       },
       upbitData: {
         KRW: categorizedData.KRW.map((item) => ({
+          market: item.market,
           koreanName: item.koreanName,
           englishName: item.englishName,
           tradePrice: item.tradePrice,
           kimchiPremium: calculateKimchiPremium(
             item.tradePrice,
-            btcUsdtPrice,
+            coinUsdPrices[coinSymbolMap[item.englishName]],
             additionalData.usdToKrw
           ),
           change: item.change,
@@ -151,28 +186,20 @@ const getIntegratedData = async () => {
           accTradePrice24h: item.accTradePrice24h,
         })),
         BTC: categorizedData.BTC.map((item) => ({
+          market: item.market,
           koreanName: item.koreanName,
           englishName: item.englishName,
           tradePrice: item.tradePrice,
-          kimchiPremium: calculateKimchiPremium(
-            item.tradePrice,
-            btcUsdtPrice,
-            additionalData.usdToKrw
-          ),
           change: item.change,
           changePrice: item.changePrice,
           changeRate: item.changeRate,
           accTradePrice24h: item.accTradePrice24h,
         })),
         USDT: categorizedData.USDT.map((item) => ({
+          market: item.market,
           koreanName: item.koreanName,
           englishName: item.englishName,
           tradePrice: item.tradePrice,
-          kimchiPremium: calculateKimchiPremium(
-            item.tradePrice,
-            btcUsdtPrice,
-            additionalData.usdToKrw
-          ),
           change: item.change,
           changePrice: item.changePrice,
           changeRate: item.changeRate,
