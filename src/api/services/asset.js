@@ -1,7 +1,7 @@
 const axios = require("axios");
 const uuidv4 = require("uuid");
 const jwt = require("jsonwebtoken");
-const { UpbitAccount } = require("../../models");
+const { UpbitAccounts } = require("../../models");
 
 const access_key = process.env.UPBIT_OPEN_API_ACCESS_KEY;
 const secret_key = process.env.UPBIT_OPEN_API_SECRET_KEY;
@@ -28,9 +28,11 @@ const getAssetData = async (userId) => {
     const response = await axios(options);
     const apiData = response.data;
 
+    await UpbitAccounts.destroy({ where: { user_id: userId } });
+
     await Promise.all(
       apiData.map(async (account) => {
-        await UpbitAccount.upsert({
+        await UpbitAccounts.upsert({
           upbit_id: account.upbit_id,
           currency: account.currency,
           balance: account.balance,
@@ -48,7 +50,7 @@ const getAssetData = async (userId) => {
 
 const getSavedAssetData = async (userId) => {
   try {
-    const accounts = await UpbitAccount.findAll({
+    const accounts = await UpbitAccounts.findAll({
       where: { user_id: userId },
     });
     return accounts;
