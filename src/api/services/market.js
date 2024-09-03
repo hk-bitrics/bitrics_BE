@@ -69,17 +69,15 @@ const getUpbitMarketData = async () => {
   const markets = await getAllMarkets();
   const data = await getMarketData(markets);
 
-  const btcUsdtMarket = data.find((item) => item.market === "USDT-BTC");
   return {
     categorizedData: categorizeMarketData(data),
-    btcUsdtPrice: btcUsdtMarket ? btcUsdtMarket.tradePrice : null,
   };
 };
 
 const getCoinpaprikaData = async () => {
   try {
     const response = await axios.get(
-      "https://api.coinpaprika.com/v1/tickers?quotes=KRW"
+      "https://api.coinpaprika.com/v1/tickers?quotes=USD,KRW"
     );
 
     const coinData = response.data.map((coin) => ({
@@ -88,6 +86,7 @@ const getCoinpaprikaData = async () => {
       symbol: coin.symbol,
       marketCap: coin.quotes.KRW.market_cap,
       volume24h: coin.quotes.KRW.volume_24h,
+      usdPrice: coin.quotes.USD.price,
     }));
 
     return coinData;
@@ -104,45 +103,65 @@ const getAdditionalData = async () => {
     const btcDominanceResponse = await axios.get(
       "https://api.coinpaprika.com/v1/global"
     );
-    const fearGreedIndexResponse = await axios.get(
-      "https://api.alternative.me/fng/"
+    const btcResponse = await axios.get(
+      "https://api.coinpaprika.com/v1/tickers/btc-bitcoin?quotes=USD,KRW"
     );
 
     return {
       usdToKrw: exchangeRateResponse.data.rates.KRW,
       btcDominance: btcDominanceResponse.data.bitcoin_dominance_percentage,
-      fearGreedIndex: fearGreedIndexResponse.data.value,
+      btcUsd: btcResponse.data.quotes.USD.price,
+      btcKrw: btcResponse.data.quotes.KRW.price,
     };
   } catch (error) {
     throw new Error(`Error fetching additional data: ${error.message}`);
   }
 };
 
-const calculateKimchiPremium = (btcKrw, btcUsdt, usdToKrw) => {
-  const btcUsdConverted = btcUsdt * usdToKrw;
-  return ((btcKrw - btcUsdConverted) / btcUsdConverted) * 100;
+const calculateKimchiPremium = (marketPriceKrw, marketPriceUsd, usdToKrw) => {
+  const usdConvertedToKrw = marketPriceUsd * usdToKrw;
+  return ((marketPriceKrw - usdConvertedToKrw) / usdConvertedToKrw) * 100;
 };
 
 const getIntegratedData = async () => {
   try {
-    const { categorizedData, btcUsdtPrice } = await getUpbitMarketData();
+    const { categorizedData } = await getUpbitMarketData();
     const coinpaprikaData = await getCoinpaprikaData();
     const additionalData = await getAdditionalData();
+
+    const coinSymbolMap = coinpaprikaData.reduce((acc, coin) => {
+      acc[coin.name] = coin.symbol;
+      return acc;
+    }, {});
+
+    const coinUsdPrices = coinpaprikaData.reduce((acc, coin) => {
+      acc[coin.symbol] = coin.usdPrice;
+      return acc;
+    }, {});
+
+    const btcKrwKimchiPremium = calculateKimchiPremium(
+      categorizedData.KRW.find((item) => item.englishName === "Bitcoin")
+        .tradePrice,
+      coinUsdPrices["BTC"],
+      additionalData.usdToKrw
+    );
 
     return {
       exchangeRate: {
         usdToKrw: additionalData.usdToKrw,
         btcDominance: additionalData.btcDominance,
-        fearGreedIndex: additionalData.fearGreedIndex,
+        btcUsd: additionalData.btcUsd,
+        btcKrwKimchiPremium: btcKrwKimchiPremium,
       },
       upbitData: {
         KRW: categorizedData.KRW.map((item) => ({
+          market: item.market,
           koreanName: item.koreanName,
           englishName: item.englishName,
           tradePrice: item.tradePrice,
           kimchiPremium: calculateKimchiPremium(
             item.tradePrice,
-            btcUsdtPrice,
+            coinUsdPrices[coinSymbolMap[item.englishName]],
             additionalData.usdToKrw
           ),
           change: item.change,
@@ -154,11 +173,6 @@ const getIntegratedData = async () => {
           koreanName: item.koreanName,
           englishName: item.englishName,
           tradePrice: item.tradePrice,
-          kimchiPremium: calculateKimchiPremium(
-            item.tradePrice,
-            btcUsdtPrice,
-            additionalData.usdToKrw
-          ),
           change: item.change,
           changePrice: item.changePrice,
           changeRate: item.changeRate,
@@ -168,11 +182,6 @@ const getIntegratedData = async () => {
           koreanName: item.koreanName,
           englishName: item.englishName,
           tradePrice: item.tradePrice,
-          kimchiPremium: calculateKimchiPremium(
-            item.tradePrice,
-            btcUsdtPrice,
-            additionalData.usdToKrw
-          ),
           change: item.change,
           changePrice: item.changePrice,
           changeRate: item.changeRate,
