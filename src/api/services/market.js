@@ -1,11 +1,13 @@
 const axios = require("axios");
 
+// 모든 시장 데이터
 const getAllMarkets = async () => {
   try {
     const response = await axios.get(
       "https://api.upbit.com/v1/market/all?isDetails=false"
     );
 
+    // 시장(ex. KRW-BTC), 한국어 이름(ex. 비트코인), 영어 이름(Bitcoin)
     return response.data.map((item) => ({
       market: item.market,
       koreanName: item.korean_name,
@@ -16,7 +18,9 @@ const getAllMarkets = async () => {
   }
 };
 
+// 특정 시장 데이터
 const getMarketData = async (markets) => {
+  // 모든 시장 데이터에서 시장
   const marketCodes = markets.map((item) => item.market);
   const url = `https://api.upbit.com/v1/ticker?markets=${marketCodes.join(
     ","
@@ -48,6 +52,7 @@ const getMarketData = async (markets) => {
   }
 };
 
+// 시장 데이터 카테고리별(KRW, BTC, USDT) 분류
 const categorizeMarketData = (data) => {
   const categorizedData = {
     KRW: [],
@@ -66,9 +71,12 @@ const categorizeMarketData = (data) => {
 };
 
 const getUpbitMarketData = async () => {
+  // 모든 시장 데이터
   const markets = await getAllMarkets();
+  // 특정 시장 데이터
   const data = await getMarketData(markets);
 
+  // 특정 시장 -> 카테고리별 분류
   return {
     categorizedData: categorizeMarketData(data),
   };
@@ -80,6 +88,7 @@ const getCoinpaprikaData = async () => {
       "https://api.coinpaprika.com/v1/tickers?quotes=USD,KRW"
     );
 
+    // 순위, 이름(ex. Bitcoin), 심볼(ex. BTC), 시가 총액(KRW), 24시간 거래량(KRW), 가격(USD)
     const coinData = response.data.map((coin) => ({
       rank: coin.rank,
       name: coin.name,
@@ -107,6 +116,7 @@ const getAdditionalData = async () => {
       "https://api.coinpaprika.com/v1/tickers/btc-bitcoin?quotes=USD,KRW"
     );
 
+    // 환율(USD/KRW), 시가 총액(USD), 거래량(USD), BTC 점유율, BTC 가격(USD), BTC 가격(KRW)
     return {
       usdToKrw: exchangeRateResponse.data.rates.KRW,
       marketCapUsd: btcDominanceResponse.data.market_cap_usd,
@@ -120,11 +130,13 @@ const getAdditionalData = async () => {
   }
 };
 
+// 김프(김치프리미엄)
 const calculateKimchiPremium = (marketPriceKrw, marketPriceUsd, usdToKrw) => {
   const usdConvertedToKrw = marketPriceUsd * usdToKrw;
   return ((marketPriceKrw - usdConvertedToKrw) / usdConvertedToKrw) * 100;
 };
 
+// 반환
 const getIntegratedData = async () => {
   try {
     const { categorizedData } = await getUpbitMarketData();
