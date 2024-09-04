@@ -13,6 +13,7 @@ const authRouter = require("../src/routes/auth");
 const marketRouter = require("../src/routes/market");
 const mapRouter = require("../src/routes/map");
 const assetRouter = require("../src/routes/asset");
+const newsRouter = require("../src/routes/news");
 
 const { sequelize } = require("./models");
 const passportConfig = require("./passport");
@@ -57,8 +58,10 @@ app.use("/auth", authRouter);
 app.use("/", marketRouter);
 app.use("/", mapRouter);
 app.use("/", assetRouter);
+app.use("/", newsRouter);
 
 app.use((req, res, next) => {
+  console.log(req, res);
   res.status(404).json({
     message: `${req.method} ${req.url} 라우터 없습니다.`,
   });
