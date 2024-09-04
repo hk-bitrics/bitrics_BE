@@ -62,4 +62,4 @@ const getAssetData = async () => {
 //   }
 // };
 
-module.exports = { getAssetData, removeSaveAssetData, getSavedAssetData };
+module.exports = { getAssetData };
