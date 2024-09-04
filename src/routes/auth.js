@@ -19,8 +19,8 @@ router.get(
   (req, res) => {
     console.log(req.session);
     console.log(req.user);
-    res.redirect("/");
-    // res.redirect("https://bitrics.vercel.app/redirect");
+    // res.redirect("/");
+    res.redirect("https://bitrics.vercel.app");
   }
 );
 
