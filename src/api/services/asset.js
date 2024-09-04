@@ -18,14 +18,12 @@ const getAuthToken = () => {
 const getAssetData = async () => {
   try {
     const token = getAuthToken();
-    const options = {
-      method: "GET",
-      url: `${server_url}/v1/accounts`,
+    const response = await axios.get(`${server_url}/v1/accounts`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    };
-    const response = await axios(options);
+    });
+
     return response.data;
   } catch (error) {
     throw new Error(`Error fetching account data: ${error.message}`);
