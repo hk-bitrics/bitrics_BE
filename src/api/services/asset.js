@@ -1,5 +1,5 @@
 const axios = require("axios");
-const uuidv4 = require("uuid");
+const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
 const { UpbitAccounts } = require("../../models");
 
