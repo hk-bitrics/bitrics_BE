@@ -32,33 +32,34 @@ const getAssetData = async () => {
   }
 };
 
-const removeSaveAssetData = async (userId) => {
-  try {
-    const apiData = await getAssetData();
-    await UpbitAccounts.destroy({ where: { user_id: userId } });
-    await UpbitAccounts.bulkCreate(
-      apiData.map((account) => ({
-        currency: account.currency,
-        balance: account.balance,
-        locked: account.locked,
-        avg_buy_price: account.avg_buy_price,
-        unit_currency: account.unit_currency,
-        user_id: userId,
-      }))
-    );
-  } catch (error) {
-    throw new Error(`Error saving account data: ${error.message}`);
-  }
-};
+// const removeSaveAssetData = async (userId) => {
+//   try {
+//     const apiData = await getAssetData();
+//     await UpbitAccounts.destroy({ where: { user_id: userId } });
+//     await UpbitAccounts.bulkCreate(
+//       apiData.map((account) => ({
+//         currency: account.currency,
+//         balance: account.balance,
+//         locked: account.locked,
+//         avg_buy_price: account.avg_buy_price,
+//         unit_currency: account.unit_currency,
+//         user_id: userId,
+//       }))
+//     );
+//   } catch (error) {
+//     throw new Error(`Error saving account data: ${error.message}`);
+//   }
+// };
 
-const getSavedAssetData = async (userId) => {
-  try {
-    const accounts = await UpbitAccounts.findAll({
-      where: { user_id: userId },
-    });
-    return accounts;
-  } catch (error) {
-    throw new Error(`Error fetching saved asset data: ${error.message}`);
-  }
-};
-module.exports = { removeSaveAssetData, getSavedAssetData };
+// const getSavedAssetData = async (userId) => {
+//   try {
+//     const accounts = await UpbitAccounts.findAll({
+//       where: { user_id: userId },
+//     });
+//     return accounts;
+//   } catch (error) {
+//     throw new Error(`Error fetching saved asset data: ${error.message}`);
+//   }
+// };
+
+module.exports = { getAssetData, removeSaveAssetData, getSavedAssetData };
