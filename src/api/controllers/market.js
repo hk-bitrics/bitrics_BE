@@ -1,6 +1,6 @@
 const { getIntegratedData } = require("../services/market");
 
-exports.getMarketInfo = async (req, res) => {
+exports.getIntegratedData = async (req, res) => {
   try {
     const data = await getIntegratedData();
 

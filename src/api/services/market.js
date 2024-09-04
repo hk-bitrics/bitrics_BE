@@ -120,9 +120,13 @@ const getAdditionalData = async () => {
     return {
       usdToKrw: exchangeRateResponse.data.rates.KRW,
       marketCapUsd: btcDominanceResponse.data.market_cap_usd,
+      marketCapChange24h: btcDominanceResponse.data.market_cap_change_24h,
       volume24hUsd: btcDominanceResponse.data.volume_24h_usd,
+      volume24hChange24h: btcDominanceResponse.data.volume_24h_change_24h,
       btcDominance: btcDominanceResponse.data.bitcoin_dominance_percentage,
       btcUsd: btcResponse.data.quotes.USD.price,
+      btcUsdpercentChange24h:
+        btcResponse.data.quotes.USD.btcUsdpercent_change_24h,
       btcKrw: btcResponse.data.quotes.KRW.price,
     };
   } catch (error) {
@@ -164,9 +168,12 @@ const getIntegratedData = async () => {
       exchangeRate: {
         usdToKrw: additionalData.usdToKrw,
         marketCapUsd: additionalData.marketCapUsd,
+        marketCapChange24h: additionalData.marketCapChange24h,
         volume24hUsd: additionalData.volume24hUsd,
+        volume24hChange24h: additionalData.volume24hChange24h,
         btcDominance: additionalData.btcDominance,
         btcUsd: additionalData.btcUsd,
+        btcUsdpercentChange24h: additionalData.btcUsdpercentChange24h,
         btcKrwKimchiPremium: btcKrwKimchiPremium,
       },
       upbitData: {
