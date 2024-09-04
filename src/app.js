@@ -34,7 +34,7 @@ sequelize
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://bitrics.vercel.app"],
+    origin: "https://bitrics.vercel.app",
     credentials: true,
   })
 );
