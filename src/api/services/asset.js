@@ -36,18 +36,15 @@ const removeSaveAssetData = async (userId) => {
   try {
     const apiData = await getAssetData();
     await UpbitAccounts.destroy({ where: { user_id: userId } });
-    await Promise.all(
-      apiData.map(async (account) => {
-        await UpbitAccounts.upsert({
-          upbit_id: account.upbit_id,
-          currency: account.currency,
-          balance: account.balance,
-          locked: account.locked,
-          avg_buy_price: account.avg_buy_price,
-          unit_currency: account.unit_currency,
-          user_id: userId,
-        });
-      })
+    await UpbitAccounts.bulkCreate(
+      apiData.map((account) => ({
+        currency: account.currency,
+        balance: account.balance,
+        locked: account.locked,
+        avg_buy_price: account.avg_buy_price,
+        unit_currency: account.unit_currency,
+        user_id: userId,
+      }))
     );
   } catch (error) {
     throw new Error(`Error saving account data: ${error.message}`);

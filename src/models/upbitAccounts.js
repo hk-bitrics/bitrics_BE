@@ -14,15 +14,15 @@ class UpbitAccounts extends Sequelize.Model {
           allowNull: true,
         },
         balance: {
-          type: Sequelize.DECIMAL(20, 8),
+          type: Sequelize.STRING(30),
           allowNull: true,
         },
         locked: {
-          type: Sequelize.DECIMAL(20, 8),
+          type: Sequelize.STRING(30),
           allowNull: true,
         },
         avg_buy_price: {
-          type: Sequelize.DECIMAL(20, 8),
+          type: Sequelize.STRING(30),
           allowNull: true,
         },
         unit_currency: {
