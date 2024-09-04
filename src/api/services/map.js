@@ -4,7 +4,7 @@ const getAllAtmLocations = async () => {
   try {
     return await VcAtmLoc.findAll();
   } catch (error) {
-    throw new Error(`Error fetching ATM locations: ${error.message}`);
+    res.status(500).json({ message: error.message });
   }
 };
 

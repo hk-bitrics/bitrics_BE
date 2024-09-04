@@ -1,5 +1,5 @@
 const axios = require("axios");
-const uuidv4 = require("uuid");
+const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
 const { UpbitAccounts } = require("../../models");
 
@@ -15,36 +15,37 @@ const getAuthToken = () => {
   return jwt.sign(payload, secret_key);
 };
 
-const getAssetData = async (userId) => {
+const getAssetData = async () => {
   try {
     const token = getAuthToken();
-    const options = {
-      method: "GET",
-      url: `${server_url}/v1/accounts`,
+    const response = await axios.get(`${server_url}/v1/accounts`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    };
-    const response = await axios(options);
-    const apiData = response.data;
+    });
 
-    await UpbitAccounts.destroy({ where: { user_id: userId } });
-
-    await Promise.all(
-      apiData.map(async (account) => {
-        await UpbitAccounts.upsert({
-          upbit_id: account.upbit_id,
-          currency: account.currency,
-          balance: account.balance,
-          locked: account.locked,
-          avg_buy_price: account.avg_buy_price,
-          unit_currency: account.unit_currency,
-          user_id: userId,
-        });
-      })
-    );
+    return response.data;
   } catch (error) {
     throw new Error(`Error fetching account data: ${error.message}`);
+  }
+};
+
+const removeSaveAssetData = async (userId) => {
+  try {
+    const apiData = await getAssetData();
+    await UpbitAccounts.destroy({ where: { user_id: userId } });
+    await UpbitAccounts.bulkCreate(
+      apiData.map((account) => ({
+        currency: account.currency,
+        balance: account.balance,
+        locked: account.locked,
+        avg_buy_price: account.avg_buy_price,
+        unit_currency: account.unit_currency,
+        user_id: userId,
+      }))
+    );
+  } catch (error) {
+    throw new Error(`Error saving account data: ${error.message}`);
   }
 };
 
@@ -58,4 +59,5 @@ const getSavedAssetData = async (userId) => {
     throw new Error(`Error fetching saved asset data: ${error.message}`);
   }
 };
-module.exports = { getAssetData, getSavedAssetData };
+
+module.exports = { removeSaveAssetData, getSavedAssetData };
