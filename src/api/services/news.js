@@ -10,59 +10,63 @@ const getHTML = async (keyword) => {
       .then((res) => res.data);
     return html;
   } catch {
-    console.log("에러발생");
+    console.log("뉴스 사이트내 html 파일 로드중 에러발생");
   }
 };
 
 const getNews = async (keyword) => {
-  const html = await getHTML(keyword);
-  const $ = load(html);
+  try {
+    const html = await getHTML(keyword);
+    const $ = load(html);
 
-  const newsHref = $(".article .txt_wrap a")
-    .map(function () {
-      return $(this).has("em.tit").prop("href");
-    })
-    .toArray();
+    const newsHref = $(".article .txt_wrap a")
+      .map(function () {
+        return $(this).has("em.tit").prop("href");
+      })
+      .toArray();
 
-  const newsTitle = $(".article .txt_wrap .tit")
-    .contents()
-    .map(function () {
-      return $(this).text();
-    })
-    .toArray();
+    const newsTitle = $(".article .txt_wrap .tit")
+      .contents()
+      .map(function () {
+        return $(this).text();
+      })
+      .toArray();
 
-  const newsContent = $(".article .txt_wrap p.txt")
-    .map(function () {
-      return $(this).text();
-    })
-    .toArray();
+    const newsContent = $(".article .txt_wrap p.txt")
+      .map(function () {
+        return $(this).text();
+      })
+      .toArray();
 
-  const newsMedia = $(".article .txt_wrap p.info")
-    .children("span")
-    .not(".date_time")
-    .map(function () {
-      return $(this).first().text();
-    })
-    .toArray();
+    const newsMedia = $(".article .txt_wrap p.info")
+      .children("span")
+      .not(".date_time")
+      .map(function () {
+        return $(this).first().text();
+      })
+      .toArray();
 
-  const newsCreatedAt = $(".article .txt_wrap p.info")
-    .children("span.date_time")
-    .map(function () {
-      return $(this).text();
-    })
-    .toArray();
+    const newsCreatedAt = $(".article .txt_wrap p.info")
+      .children("span.date_time")
+      .map(function () {
+        return $(this).text();
+      })
+      .toArray();
 
-  const news = [];
-  for (let i = 0; i < newsTitle.length; i++) {
-    news.push({
-      title: newsTitle[i],
-      content: newsContent[i],
-      media: newsMedia[i],
-      createdAt: newsCreatedAt[i],
-      href: newsHref[i],
-    });
+    const news = [];
+    for (let i = 0; i < newsTitle.length; i++) {
+      news.push({
+        title: newsTitle[i],
+        content: newsContent[i],
+        media: newsMedia[i],
+        createdAt: newsCreatedAt[i],
+        href: newsHref[i],
+      });
+    }
+    return news;
+  } catch (e) {
+    console.log("뉴스 스크래핑 중 에러 발생", e);
   }
-  return news;
 };
 
 module.exports = {
