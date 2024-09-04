@@ -50,7 +50,7 @@ app.use(
     saveUninitialized: false,
     secret: process.env.COOKIE_SECRET,
     cookie: {
-      httpOnly: false,
+      httpOnly: true,
       secure: process.env.NODE_ENV === "production",
     },
   })
