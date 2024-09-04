@@ -5,8 +5,7 @@ exports.getAtmLocations = async (req, res) => {
     const locations = await getAllAtmLocations();
     res.status(200).json(locations);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: `Error fetching ATM locations: ${error.message}` });
+    res.status(500).json({ message: error.message });
+    console.error(error);
   }
 };

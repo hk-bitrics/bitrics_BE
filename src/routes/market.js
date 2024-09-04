@@ -1,8 +1,8 @@
 const express = require("express");
-const { getMarketInfo } = require("../api/controllers/market");
+const { getIntegratedData } = require("../api/controllers/market");
 const router = express.Router();
 
 // GET /markets
-router.get("/markets", getMarketInfo);
+router.get("/markets", getIntegratedData);
 
 module.exports = router;
