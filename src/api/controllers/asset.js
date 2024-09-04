@@ -1,8 +1,4 @@
-const {
-  getAssetData,
-  removeSaveAssetData,
-  getSavedAssetData,
-} = require("../services/asset");
+const { getAssetData } = require("../services/asset");
 
 // exports.getSavedAssetData = async (req, res) => {
 //   try {
