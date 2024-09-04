@@ -32,7 +32,12 @@ sequelize
     console.error("데이터베이스 연결 실패: ", err);
   });
 
-app.use(cors({ credentials: true }));
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "https://bitrics.vercel.app"],
+    credentials: true,
+  })
+);
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
