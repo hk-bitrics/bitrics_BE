@@ -43,6 +43,9 @@ jobs:
           echo PORT=${{ secrets.PORT }} >> .env
           echo UPBIT_OPEN_API_ACCESS_KEY=${{ secrets.UPBIT_OPEN_API_ACCESS_KEY }} >> .env
           echo UPBIT_OPEN_API_SECRET_KEY=${{ secrets.UPBIT_OPEN_API_SECRET_KEY }} >> .env
+          echo UPBIT_OPEN_API_SERVER_URL=${{ secrets.UPBIT_OPEN_API_SERVER_URL }} >> .env
+          echo S3_BUCKET_DIR_NAME=${{ secrets.S3_BUCKET_DIR_NAME }} >> .env
+          echo DEPLOYMENT_GROUP_NAME=${{ secrets.DEPLOYMENT_GROUP_NAME }} >> .env
           cat .env
 
       - name: Install dependencies
