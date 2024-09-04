@@ -1,0 +1,77 @@
+name: deploy
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.17.0]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+      - name: Checkout source code.
+        uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Check npm versionu
+        run: npm -v
+
+      - name: create env file
+        working-directory: ./
+        run: |
+          pwd
+          touch .env
+          echo COOKIE_SECRET=${{ secrets.COOKIE_SECRET }} >> .env
+          echo NODE_ENV=${{ secrets.NODE_ENV }} >> .env
+          echo CLIENT_ID=${{ secrets.CLIENT_ID }} >> .env
+          echo CLIENT_SECRET=${{ secrets.CLIENT_SECRET }} >> .env
+          echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+          echo DB_USER=${{ secrets.DB_USER }} >> .env
+          echo DB_PASS=${{ secrets.DB_PASS }} >> .env
+          echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+          echo PORT=${{ secrets.PORT }} >> .env
+          echo UPBIT_OPEN_API_ACCESS_KEY=${{ secrets.UPBIT_OPEN_API_ACCESS_KEY }} >> .env
+          echo UPBIT_OPEN_API_SECRET_KEY=${{ secrets.UPBIT_OPEN_API_SECRET_KEY }} >> .env
+          echo UPBIT_OPEN_API_SERVER_URL=${{ secrets.UPBIT_OPEN_API_SERVER_URL }} >> .env
+          echo S3_BUCKET_DIR_NAME=${{ secrets.S3_BUCKET_DIR_NAME }} >> .env
+          echo DEPLOYMENT_GROUP_NAME=${{ secrets.DEPLOYMENT_GROUP_NAME }} >> .env
+          cat .env
+
+      - name: Install dependencies
+        working-directory: ./
+        run: npm install
+
+      - name: Build project
+        working-directory: ./
+        run: npm run build
+
+      - name: Zip project files
+        run: zip -r ./$GITHUB_SHA.zip .
+
+      - name: Access to AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Upload to S3
+        run: aws s3 cp ./$GITHUB_SHA.zip s3://${{ secrets.S3_BUCKET_NAME }}/${GITHUB_SHA}.zip
+
+      - name: Deploy to EC2 with CodeDeploy
+        run: aws deploy create-deployment
+          --application-name birics-codedeploy
+          --deployment-config-name CodeDeployDefault.AllAtOnce
+          --deployment-group-name ${{ secrets.DEPLOYMENT_GROUP_NAME }}
+          --s3-location bucket=${{ secrets.S3_BUCKET_NAME }},bundleType=zip,key=${GITHUB_SHA}.zip
