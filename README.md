@@ -9,7 +9,7 @@ $ sudo apt-get install nginx
 Nginx 설정 파일 수정
 ```
 sudo vi /etc/nginx/sites-available/bitrics.conf
-sudo ln -s /etc/nginx/sites-available/tusori.conf /etc/nginx/sites-enabled/bitrics.conf
+sudo ln -s /etc/nginx/sites-available/bitrics.conf /etc/nginx/sites-enabled/bitrics.conf
 ```
 ```
 server {
