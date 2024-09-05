@@ -8,7 +8,7 @@ module.exports = () => {
       {
         clientID: process.env.CLIENT_ID,
         clientSecret: process.env.CLIENT_SECRET,
-        callbackURL: "/auth/kakao/callback",
+        callbackURL: "https://bitrics-hk.duckdns.org/auth/kakao/callback",
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
