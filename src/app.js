@@ -32,9 +32,18 @@ sequelize
     console.error("데이터베이스 연결 실패: ", err);
   });
 
+// const whitelist = ["http://localhost:3000", "https://bitrics.vercel.app"];
+// const corsOptions = {
+//   origin: whitelist,
+//   credentials: true,
+//   optionsSuccessStatus: 200,
+// };
+
+// app.use(cors(corsOptions));
+
 app.use(
   cors({
-    // origin: "https://bitrics.vercel.app",
+    origin: "https://bitrics.vercel.app",
     credentials: true,
   })
 );
