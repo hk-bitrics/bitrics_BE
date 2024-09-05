@@ -20,7 +20,7 @@ router.get(
     console.log(req.session);
     console.log(req.user);
     // res.redirect("/");
-    res.redirect("https://bitrics.vercel.app");
+    res.redirect("https://bitrics.vercel.app/assets");
   }
 );
 
