@@ -56,8 +56,7 @@ app.use(
     secret: process.env.COOKIE_SECRET,
     cookie: {
       httpOnly: true,
-      // secure: process.env.NODE_ENV === "production",
-      secure: true,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "None",
     },
   })
