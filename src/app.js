@@ -32,21 +32,17 @@ sequelize
     console.error("데이터베이스 연결 실패: ", err);
   });
 
-// const whitelist = ["http://localhost:3000", "https://bitrics.vercel.app"];
-// const corsOptions = {
-//   origin: whitelist,
-//   credentials: true,
-//   optionsSuccessStatus: 200,
-// };
+const whitelist = ["http://localhost:3000", "https://bitrics.vercel.app"];
+const corsOptions = {
+  origin: whitelist,
+  credentials: true,
+  optionsSuccessStatus: 200,
+  allowedHeaders: "*",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+};
 
-// app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 
-app.use(
-  cors({
-    origin: "https://bitrics.vercel.app",
-    credentials: true,
-  })
-);
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
