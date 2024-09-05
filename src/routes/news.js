@@ -2,7 +2,6 @@ const express = require("express");
 const { getNews } = require("../api/controllers/news");
 const router = express.Router();
 
-// GET /news
-router.get("/news", getNews);
+router.get("/news/:keyword", getNews);
 
 module.exports = router;
