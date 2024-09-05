@@ -1,7 +1,7 @@
 const axios = require("axios");
 const { load } = require("cheerio");
 
-export const getHTML = async (keyword) => {
+const getHTML = async (keyword) => {
   try {
     const html = await axios
       .get(
@@ -16,7 +16,7 @@ export const getHTML = async (keyword) => {
   }
 };
 
-export const getNews = async (keyword) => {
+const getNews = async (keyword) => {
   const html = await getHTML(keyword);
   const $ = load(html);
 
