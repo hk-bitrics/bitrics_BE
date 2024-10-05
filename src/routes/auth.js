@@ -1,6 +1,6 @@
 const express = require("express");
 const passport = require("passport");
-const { isLoggedIn } = require("../middlewares");
+const { isLoggedIn, isNotLoggedIn } = require("../middlewares");
 const { authCheck, logout } = require("../api/controllers/auth");
 const router = express.Router();
 
@@ -22,7 +22,11 @@ router.get(
   (req, res) => {
     console.log(req.session);
     console.log(req.user);
-    res.redirect("https://bitrics.vercel.app/asset");
+    // res.redirect("https://bitrics.vercel.app/asset");
+    res.status(200).json({
+      message: "로그인 성공",
+      user: req.user,
+    });
   }
 );
 

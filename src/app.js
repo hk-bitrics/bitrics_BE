@@ -7,6 +7,9 @@ const dotenv = require("dotenv");
 const passport = require("passport");
 const cors = require("cors");
 const swaggerSetup = require("./swagger");
+const RedisStore = require("connect-redis")(session);
+const redis = require("redis");
+const redisClient = redis.createClient();
 
 dotenv.config();
 const authRouter = require("../src/routes/auth");
@@ -51,13 +54,15 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 
 app.use(
   session({
+    store: new RedisStore({ client: redisClient }),
+    secret: process.env.COOKIE_SECRET,
     resave: false,
     saveUninitialized: false,
-    secret: process.env.COOKIE_SECRET,
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "None",
+      maxAge: 1000 * 60 * 60 * 24,
     },
   })
 );
