@@ -1,4 +1,5 @@
 # bitrics_BE
+[![deploy](https://github.com/hk-bitrics/bitrics_BE/actions/workflows/deploy.yml/badge.svg)](https://github.com/hk-bitrics/bitrics_BE/actions/workflows/deploy.yml)
 ## Install
 > **nginx**
 ```
