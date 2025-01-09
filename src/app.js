@@ -7,6 +7,9 @@ const dotenv = require("dotenv");
 const passport = require("passport");
 const cors = require("cors");
 const swaggerSetup = require("./swagger");
+const RedisStore = require("connect-redis")(session);
+const redis = require("redis");
+const redisClient = redis.createClient();
 
 dotenv.config();
 const authRouter = require("../src/routes/auth");
@@ -32,7 +35,17 @@ sequelize
     console.error("데이터베이스 연결 실패: ", err);
   });
 
-app.use(cors({ credentials: true }));
+const whitelist = ["http://localhost:3000", "https://bitrics.vercel.app"];
+const corsOptions = {
+  origin: whitelist,
+  credentials: true,
+  optionsSuccessStatus: 200,
+  allowedHeaders: "*",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+};
+
+app.use(cors(corsOptions));
+
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
@@ -41,12 +54,15 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 
 app.use(
   session({
+    store: new RedisStore({ client: redisClient }),
+    secret: process.env.COOKIE_SECRET,
     resave: false,
     saveUninitialized: false,
-    secret: process.env.COOKIE_SECRET,
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: "None",
+      maxAge: 1000 * 60 * 60 * 24,
     },
   })
 );

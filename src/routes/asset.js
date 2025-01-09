@@ -1,9 +1,13 @@
 const express = require("express");
-const { isLoggedIn, isNotLoggedIn } = require("../middlewares");
+const { isLoggedIn } = require("../middlewares");
+// const { getAssetData } = require("../api/controllers/asset");
 const { getSavedAssetData } = require("../api/controllers/asset");
 const router = express.Router();
 
 // GET /assets
 router.get("/assets", isLoggedIn, getSavedAssetData);
+
+// GET /test
+// router.get("/assets", getAssetData);
 
 module.exports = router;
